@@ -1,6 +1,6 @@
 #include <hashhashhash.hpp>
 
-void hashhashhash::submit(name username, uint64_t hash, string content) {
+void hashhashhash::submit(name username, checksum256 hash, string content) {
   // Ensure this action is authorized by the user
   require_auth(username);
 
@@ -14,11 +14,15 @@ void hashhashhash::submit(name username, uint64_t hash, string content) {
 
   // Get item count of hash
   uint64_t count = h_itr->item_count;
+
+  // Convert checksum to uint64
+  uint64_t hashInt = hashhashhash::checksum_to_uint64(hash);
   
   // Create or Update hash in hashes table
   if (h_itr == hashes.end()) {
     _hashes.emplace(get_self(),  [&](auto& new_hash) {
       new_hash.id = _hashes.available_primary_key();
+      new_hash.hashInt = hashInt;
       new_hash.hash = hash;
       new_hash.content = content;
       new_hash.username = username;
@@ -32,7 +36,7 @@ void hashhashhash::submit(name username, uint64_t hash, string content) {
   }
 
   // Init items table
-  items_table _items(get_self(), hash);
+  items_table _items(get_self(), hashInt);
   
   // add content to items table
   _items.emplace(get_self(),  [&](auto& new_item) {
@@ -51,7 +55,7 @@ void hashhashhash::clear() {
   auto hash_itr = _hashes.begin();
   while (hash_itr != _hashes.end()) {
     // Init items table
-    items_table _items(get_self(), hash_itr->hash);
+    items_table _items(get_self(), hash_itr->hashInt);
     auto item_itr = _items.begin();
     while (item_itr != _items.end()) {
       item_itr = _items.erase(item_itr);
