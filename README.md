@@ -1,4 +1,4 @@
-# chat-smart-contract
+# Hash It - Smart Contract
 
 ## Compile
 eosio-cpp -I include -o hashhashhash.wasm src/hashhashhash.cpp --abigen          
